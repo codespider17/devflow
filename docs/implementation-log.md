@@ -26,3 +26,12 @@
 - 验证CoreDNS、metrics-server和local-path默认存储类。
 - 安装Helm并验证与K3s集群连接。
 - 创建平台、应用和监控三个基础命名空间。
+
+## 2026-09-01 M4：FastAPI与PostgreSQL基础平台
+
+- 创建FastAPI工程基线、健康接口、就绪接口和OpenAPI文档。
+- 使用Docker Compose运行PostgreSQL 17，端口仅绑定127.0.0.1，并使用命名卷持久化数据。
+- 实现SQLAlchemy核心数据模型，并通过Alembic完成首次数据库迁移。
+- 实现Project、Environment和Pipeline Run基础API。
+- Ruff、Alembic一致性、9个pytest测试、PostgreSQL事务回滚和OpenAPI契约检查全部通过。
+- 数据库密码仅保存在本地.env中，未加入Git仓库。
