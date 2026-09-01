@@ -57,3 +57,11 @@
 - 实现Delivery ID幂等去重，同一Delivery只保存一条数据库记录。
 - 不持久化完整Webhook正文，只保留事件类型、仓库、Git引用和Commit SHA等最小元数据。
 - M5-A自动化测试与安全边界验收通过。
+
+## 2026-09-01 M5-B：Jenkins客户端与Pipeline骨架
+
+完成Jenkins参数化构建客户端与Declarative Pipeline骨架，实现Folder/Job路径编码、Basic Auth、参数表单编码、超时与异常脱敏。
+
+Pipeline包含单并发、20分钟超时、显式Checkout和Docker运行环境检查；Jenkins API Token仅保存在本机忽略文件中，不进入公开仓库。
+
+Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembic一致性检查通过。真实服务账号和SCM Job触发在下一阶段单独验收。

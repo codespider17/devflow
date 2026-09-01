@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     devflow_postgres_host: str = "127.0.0.1"
     devflow_postgres_port: int = 5432
     devflow_github_webhook_secret: SecretStr | None = None
+    devflow_jenkins_url: str = "http://127.0.0.1:8080"
+    devflow_jenkins_username: str | None = None
+    devflow_jenkins_api_token: SecretStr | None = None
+    devflow_jenkins_job_name: str = "devflow-pipeline"
 
     @property
     def database_url(self) -> str:

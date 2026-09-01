@@ -1,0 +1,37 @@
+pipeline {
+  agent any
+
+  options {
+    disableConcurrentBuilds()
+    timestamps()
+    timeout(time: 20, unit: "MINUTES")
+    skipDefaultCheckout(true)
+  }
+
+  parameters {
+    string(name: "PIPELINE_RUN_ID", defaultValue: "", description: "DevFlow Pipeline Run UUID")
+    string(name: "GIT_COMMIT_SHA", defaultValue: "", description: "Git commit requested by DevFlow")
+  }
+
+  stages {
+    stage("Checkout") {
+      steps {
+        checkout scm
+        sh "git rev-parse HEAD"
+      }
+    }
+
+    stage("Runtime Check") {
+      steps {
+        sh "docker version"
+        sh "docker buildx version"
+      }
+    }
+  }
+
+  post {
+    always {
+      echo "DevFlow pipeline skeleton finished"
+    }
+  }
+}

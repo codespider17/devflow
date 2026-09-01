@@ -55,3 +55,10 @@ DevFlow API已完成容器化并通过Helm部署到单节点K3s。部署内容�
 ## 安全Webhook接入
 
 DevFlow实现GitHub Webhook安全接入基线：使用HMAC-SHA256验证请求签名，通过X-GitHub-Delivery实现幂等去重，并限制请求体最大为1MiB。当前接收ping和push事件，其他事件保存最小审计元数据后标记为ignored，不持久化完整Webhook正文。
+
+## Jenkins流水线基线
+
+- 提供参数化Declarative Pipeline骨架，接收Pipeline Run ID和Git Commit SHA。
+- 提供Jenkins参数化构建客户端，支持Folder/Job路径编码、Basic Auth和超时控制。
+- Jenkins URL禁止内嵌用户名密码，客户端异常信息不回显API Token。
+- Pipeline启用单并发、执行超时、显式Checkout和Docker运行环境检查。
