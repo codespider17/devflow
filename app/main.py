@@ -6,6 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.core import router as core_router
+from app.api.webhooks import router as webhooks_router
 from app.database import get_db
 
 
@@ -28,6 +29,7 @@ app = FastAPI(
 )
 
 app.include_router(core_router)
+app.include_router(webhooks_router)
 
 DatabaseSession = Annotated[Session, Depends(get_db)]
 

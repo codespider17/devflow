@@ -48,3 +48,12 @@
 - 删除并重建API Pod和PostgreSQL Pod后，同一Pipeline Run仍可查询，PVC UID保持不变，持久化验证通过。
 - API ServiceAccount无Secret读取权限，PostgreSQL仅允许DevFlow API Pod访问5432。
 - M4最终验收：通过。
+
+## 2026-09-01 M5-A：GitHub Webhook安全接入
+
+- 新增GitHub Webhook Delivery模型、唯一Delivery ID约束和Alembic迁移。
+- 实现HMAC-SHA256常量时间签名校验、1MiB请求体限制和JSON对象校验。
+- 实现ping、push事件接收，其他事件记录为ignored。
+- 实现Delivery ID幂等去重，同一Delivery只保存一条数据库记录。
+- 不持久化完整Webhook正文，只保留事件类型、仓库、Git引用和Commit SHA等最小元数据。
+- M5-A自动化测试与安全边界验收通过。

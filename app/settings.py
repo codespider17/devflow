@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     devflow_postgres_password: SecretStr
     devflow_postgres_host: str = "127.0.0.1"
     devflow_postgres_port: int = 5432
+    devflow_github_webhook_secret: SecretStr | None = None
 
     @property
     def database_url(self) -> str:

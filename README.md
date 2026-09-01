@@ -51,3 +51,7 @@ DevFlow API已完成容器化并通过Helm部署到单节点K3s。部署内容�
 - `Dockerfile`：DevFlow API多阶段、非root容器镜像。
 - `.dockerignore`：限制构建上下文和敏感文件进入镜像。
 - `deploy/helm/devflow/`：API、PostgreSQL、PVC、ServiceAccount和NetworkPolicy的Helm Chart。
+
+## 安全Webhook接入
+
+DevFlow实现GitHub Webhook安全接入基线：使用HMAC-SHA256验证请求签名，通过X-GitHub-Delivery实现幂等去重，并限制请求体最大为1MiB。当前接收ping和push事件，其他事件保存最小审计元数据后标记为ignored，不持久化完整Webhook正文。
