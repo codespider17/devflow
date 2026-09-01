@@ -22,3 +22,10 @@ GitHub
 - 容器内集成Docker CLI、Buildx和Compose。
 - 使用命名卷持久化Jenkins Home，并限制为单执行器。
 - 通过Docker Socket支持后续镜像构建流水线。
+
+## Kubernetes运行环境
+
+- 使用单节点K3s提供持续交付目标环境。
+- K3s内置containerd与宿主机Docker Engine并行运行。
+- 使用Helm管理后续平台组件和应用版本。
+- 划分devflow-system、devflow-apps和monitoring命名空间。

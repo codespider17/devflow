@@ -19,3 +19,10 @@
 - 构建Jenkins LTS JDK 21自定义镜像并预装流水线插件。
 - 使用Docker Compose部署Jenkins，命名卷持久化数据。
 - 验证Jenkins Web、插件、单执行器和Docker CLI能力。
+
+## 2026-09-01 M3：K3s与Helm运行环境
+
+- 部署单节点K3s并禁用内置Traefik和ServiceLB。
+- 验证CoreDNS、metrics-server和local-path默认存储类。
+- 安装Helm并验证与K3s集群连接。
+- 创建平台、应用和监控三个基础命名空间。

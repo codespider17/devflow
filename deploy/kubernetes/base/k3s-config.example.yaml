@@ -1,0 +1,9 @@
+write-kubeconfig-mode: "0640"
+node-name: "devflow"
+node-ip: "<DEVFLOW_HOST>"
+advertise-address: "<DEVFLOW_HOST>"
+tls-san:
+  - "<DEVFLOW_HOST>"
+disable:
+  - traefik
+  - servicelb

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devflow-system
+  labels:
+    app.kubernetes.io/part-of: devflow
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devflow-apps
+  labels:
+    app.kubernetes.io/part-of: devflow
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    app.kubernetes.io/part-of: devflow
