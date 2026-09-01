@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devflow-api
+  labels:
+    app.kubernetes.io/name: devflow-api
+    app.kubernetes.io/part-of: devflow
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: devflow-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: devflow-api
+        app.kubernetes.io/part-of: devflow
+    spec:
+      serviceAccountName: devflow-api
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: migrate
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          command:
+            - alembic
+            - upgrade
+            - head
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: DEVFLOW_POSTGRES_DB
+              value: {{ .Values.postgresql.database | quote }}
+            - name: DEVFLOW_POSTGRES_USER
+              value: {{ .Values.postgresql.username | quote }}
+            - name: DEVFLOW_POSTGRES_HOST
+              value: devflow-postgresql
+            - name: DEVFLOW_POSTGRES_PORT
+              value: "5432"
+            - name: DEVFLOW_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: devflow-postgresql
+                  key: POSTGRES_PASSWORD
+      containers:
+        - name: api
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          command:
+            - uvicorn
+          args:
+            - app.main:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8000"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: DEVFLOW_POSTGRES_DB
+              value: {{ .Values.postgresql.database | quote }}
+            - name: DEVFLOW_POSTGRES_USER
+              value: {{ .Values.postgresql.username | quote }}
+            - name: DEVFLOW_POSTGRES_HOST
+              value: devflow-postgresql
+            - name: DEVFLOW_POSTGRES_PORT
+              value: "5432"
+            - name: DEVFLOW_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: devflow-postgresql
+                  key: POSTGRES_PASSWORD
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          resources:
+{{ toYaml .Values.api.resources | indent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: devflow-postgresql-data
+  labels:
+    app.kubernetes.io/name: devflow-postgresql
+    app.kubernetes.io/part-of: devflow
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.postgresql.storage.storageClassName | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.postgresql.storage.size | quote }}

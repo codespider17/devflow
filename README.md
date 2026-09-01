@@ -37,3 +37,17 @@ GitHub
 - 使用Alembic管理PostgreSQL数据库版本和结构迁移。
 - 支持Project创建与查询、Environment创建、Pipeline Run创建与详情查询。
 - 使用Ruff、pytest、PostgreSQL外层事务和OpenAPI契约检查完成自动化验收。
+
+## Kubernetes集群部署
+
+DevFlow API已完成容器化并通过Helm部署到单节点K3s。部署内容包括FastAPI Deployment、ClusterIP Service、最小权限ServiceAccount，以及PostgreSQL StatefulSet、Secret、2Gi RWO PVC和数据库入站NetworkPolicy。
+
+部署流程使用Alembic initContainer自动执行数据库迁移；API和PostgreSQL均配置健康检查、资源限制、禁止提权和非root运行。PostgreSQL通过受控权限初始化容器适配K3s local-path卷，主容器固定使用UID/GID 70。
+
+实际验收已覆盖Project、Environment和Pipeline Run接口工作流、API Pod重建、PostgreSQL Pod重建及PVC持久化。Pod重建后Pipeline Run数据仍可查询，证明应用状态由PostgreSQL持久化保存。
+
+主要部署文件：
+
+- `Dockerfile`：DevFlow API多阶段、非root容器镜像。
+- `.dockerignore`：限制构建上下文和敏感文件进入镜像。
+- `deploy/helm/devflow/`：API、PostgreSQL、PVC、ServiceAccount和NetworkPolicy的Helm Chart。

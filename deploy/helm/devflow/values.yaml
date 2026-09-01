@@ -1,0 +1,36 @@
+api:
+  replicaCount: 1
+  image:
+    repository: docker.io/library/devflow-api
+    tag: "0.1.0"
+    pullPolicy: IfNotPresent
+  service:
+    port: 8000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+postgresql:
+  image:
+    repository: docker.io/library/postgres
+    tag: "17-alpine"
+    pullPolicy: IfNotPresent
+  database: devflow
+  username: devflow
+  storage:
+    storageClassName: local-path
+    size: 2Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 768Mi
+
+secrets:
+  postgresPassword: ""

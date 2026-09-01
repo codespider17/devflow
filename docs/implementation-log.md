@@ -35,3 +35,16 @@
 - 实现Project、Environment和Pipeline Run基础API。
 - Ruff、Alembic一致性、9个pytest测试、PostgreSQL事务回滚和OpenAPI契约检查全部通过。
 - 数据库密码仅保存在本地.env中，未加入Git仓库。
+
+## 2026-09-01 M4：FastAPI、PostgreSQL与K3s部署
+
+- 完成FastAPI基础服务、PostgreSQL持久化、SQLAlchemy模型和Alembic迁移。
+- 完成Project、Environment和Pipeline Run基础API及PostgreSQL事务集成测试。
+- 构建`devflow-api:0.1.0`非root镜像，并通过只读根文件系统、禁止提权、资源限制和数据库就绪验收。
+- 使用Helm部署API Deployment、Service、ServiceAccount和PostgreSQL StatefulSet、Secret、2Gi RWO PVC及NetworkPolicy。
+- 解决K3s local-path卷初始目录权限与PostgreSQL固定UID 70不兼容的问题，通过受控`data-permissions` initContainer完成目录所有权初始化。
+- Helm Release `devflow`部署成功，API和PostgreSQL Pod均达到`1/1 Running`。
+- 完成Project、Environment和Pipeline Run真实API工作流验证。
+- 删除并重建API Pod和PostgreSQL Pod后，同一Pipeline Run仍可查询，PVC UID保持不变，持久化验证通过。
+- API ServiceAccount无Secret读取权限，PostgreSQL仅允许DevFlow API Pod访问5432。
+- M4最终验收：通过。
