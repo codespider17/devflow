@@ -1,0 +1,36 @@
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JENKINS_BASE_IMAGE: jenkins/jenkins:2.568.2-jdk21
+    image: devflow/jenkins:2.568.2-1
+    container_name: devflow-jenkins
+    restart: unless-stopped
+    init: true
+    ports:
+      - "8080:8080"
+    environment:
+      JAVA_OPTS: >-
+        -Xms512m -Xmx2048m
+        -Djenkins.install.runSetupWizard=true
+    group_add:
+      - "${DOCKER_SOCKET_GID:?DOCKER_SOCKET_GID is required}"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    mem_limit: 3g
+    cpus: 2.0
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/login >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+
+volumes:
+  jenkins_home:
+    name: devflow_jenkins_home

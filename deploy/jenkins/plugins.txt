@@ -1,0 +1,9 @@
+workflow-aggregator
+pipeline-stage-view
+git
+github
+credentials-binding
+timestamper
+docker-workflow
+configuration-as-code
+prometheus

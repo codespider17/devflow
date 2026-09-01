@@ -15,3 +15,10 @@ GitHub
   -> 健康检查、审批与回滚
   -> Prometheus与Grafana效能度量
 ```
+
+## Jenkins运行环境
+
+- 基于Jenkins LTS JDK 21构建自定义控制器镜像。
+- 容器内集成Docker CLI、Buildx和Compose。
+- 使用命名卷持久化Jenkins Home，并限制为单执行器。
+- 通过Docker Socket支持后续镜像构建流水线。
