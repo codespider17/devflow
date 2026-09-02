@@ -1,3 +1,38 @@
+def reportPipelineStatus(String callbackStatus) {
+  if (!params.PIPELINE_RUN_ID?.trim()) {
+    echo "Skip DevFlow callback because PIPELINE_RUN_ID is empty"
+    return
+  }
+
+  withCredentials([
+    string(
+      credentialsId: "devflow-pipeline-callback-token",
+      variable: "DEVFLOW_CALLBACK_TOKEN"
+    )
+  ]) {
+    withEnv(["DEVFLOW_CALLBACK_STATUS=${callbackStatus}"]) {
+      sh '''
+        set -eu
+        callback_url="${DEVFLOW_CALLBACK_BASE_URL%/}/api/v1/pipeline-runs/${PIPELINE_RUN_ID}/status"
+        callback_payload="$(printf '{"status":"%s"}' "${DEVFLOW_CALLBACK_STATUS}")"
+        curl \
+          --fail \
+          --silent \
+          --show-error \
+          --retry 3 \
+          --retry-delay 1 \
+          --retry-all-errors \
+          -X POST \
+          "${callback_url}" \
+          -H "Authorization: Bearer ${DEVFLOW_CALLBACK_TOKEN}" \
+          -H "Content-Type: application/json" \
+          --data "${callback_payload}" \
+          > /dev/null
+      '''
+    }
+  }
+}
+
 pipeline {
   agent any
 
@@ -21,6 +56,14 @@ pipeline {
       }
     }
 
+    stage("Report Running") {
+      steps {
+        script {
+          reportPipelineStatus("running")
+        }
+      }
+    }
+
     stage("Runtime Check") {
       steps {
         sh "docker version"
@@ -30,8 +73,23 @@ pipeline {
   }
 
   post {
+    success {
+      script {
+        reportPipelineStatus("succeeded")
+      }
+    }
+    failure {
+      script {
+        reportPipelineStatus("failed")
+      }
+    }
+    aborted {
+      script {
+        reportPipelineStatus("cancelled")
+      }
+    }
     always {
-      echo "DevFlow pipeline skeleton finished"
+      echo "DevFlow pipeline finished"
     }
   }
 }

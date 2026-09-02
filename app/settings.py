@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     devflow_jenkins_username: str | None = None
     devflow_jenkins_api_token: SecretStr | None = None
     devflow_jenkins_job_name: str = "devflow-pipeline"
+    devflow_pipeline_callback_token: SecretStr | None = None
 
     @property
     def database_url(self) -> str:

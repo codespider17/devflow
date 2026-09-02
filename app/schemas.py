@@ -56,3 +56,8 @@ class PipelineRunRead(PipelineRunCreate):
     finished_at: datetime | None
     created_at: datetime
     updated_at: datetime
+
+
+class PipelineRunStatusUpdate(BaseModel):
+    status: Literal["running", "succeeded", "failed", "cancelled"]
+    image_reference: str | None = Field(default=None, max_length=500)
