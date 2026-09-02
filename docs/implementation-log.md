@@ -73,3 +73,11 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 新增Pipeline Run触发来源、Jenkins队列URL、脱敏触发错误和Webhook关联字段，数据库迁移版本升级到`f411f2e069b3`。覆盖正常触发、重复Delivery、非默认分支、未注册仓库、缺少环境、ping事件和Jenkins失败等路径。
 
 真实签名push成功触发Jenkins构建3并获得`SUCCESS`，重复投递返回同一Pipeline Run且未增加构建。Webhook专项8个测试及全量30个测试通过，Ruff、pip check和Alembic模型一致性检查通过。
+
+## 2026-09-02 M5-D：Jenkins构建状态回写闭环
+
+完成受Bearer Token保护的Pipeline Run状态回写接口与严格状态机，Callback Token通过Jenkins Secret Text凭据注入，不写入Jenkinsfile或公开配置。
+
+覆盖running、succeeded、failed、cancelled、重复回写、非法转换、终态保护、错误Token和未知Run等路径，状态回写专项7个测试及全量37个测试通过。
+
+真实签名push触发Jenkins构建4，Pipeline Run c8243103-7bcb-47cb-9ca7-8514db8865b9 自动记录started_at和finished_at并进入succeeded；重复Delivery未增加构建。
