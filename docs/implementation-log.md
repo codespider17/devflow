@@ -65,3 +65,11 @@
 Pipeline包含单并发、20分钟超时、显式Checkout和Docker运行环境检查；Jenkins API Token仅保存在本机忽略文件中，不进入公开仓库。
 
 Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembic一致性检查通过。真实服务账号和SCM Job触发在下一阶段单独验收。
+
+## 2026-09-02 M5-C：Webhook事件编排与Jenkins真实触发
+
+完成GitHub Webhook与Pipeline Run编排服务接线。默认分支push在完成HMAC-SHA256签名验证、Delivery幂等检查、仓库匹配和环境选择后创建`trigger_source=github`的Pipeline Run，并通过服务账号调用Jenkins参数化构建接口。
+
+新增Pipeline Run触发来源、Jenkins队列URL、脱敏触发错误和Webhook关联字段，数据库迁移版本升级到`f411f2e069b3`。覆盖正常触发、重复Delivery、非默认分支、未注册仓库、缺少环境、ping事件和Jenkins失败等路径。
+
+真实签名push成功触发Jenkins构建3并获得`SUCCESS`，重复投递返回同一Pipeline Run且未增加构建。Webhook专项8个测试及全量30个测试通过，Ruff、pip check和Alembic模型一致性检查通过。

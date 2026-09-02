@@ -48,6 +48,9 @@ class PipelineRunRead(PipelineRunCreate):
 
     id: UUID
     status: Literal["queued", "running", "succeeded", "failed", "cancelled"]
+    trigger_source: Literal["manual", "github"]
+    jenkins_queue_url: str | None
+    trigger_error: str | None
     image_reference: str | None
     started_at: datetime | None
     finished_at: datetime | None

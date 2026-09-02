@@ -62,3 +62,9 @@ DevFlow实现GitHub Webhook安全接入基线：使用HMAC-SHA256验证请求签
 - 提供Jenkins参数化构建客户端，支持Folder/Job路径编码、Basic Auth和超时控制。
 - Jenkins URL禁止内嵌用户名密码，客户端异常信息不回显API Token。
 - Pipeline启用单并发、执行超时、显式Checkout和Docker运行环境检查。
+
+## GitHub事件驱动流水线
+
+DevFlow已实现从GitHub Webhook到Jenkins Pipeline的事件驱动触发链路：使用HMAC-SHA256校验Webhook签名，通过Delivery ID进行幂等去重，仅对已注册仓库的默认分支push创建Pipeline Run，并将Run ID和Git提交作为参数传递给Jenkins。
+
+平台会审计Webhook、Pipeline Run、Jenkins队列URL和脱敏失败原因。真实闭环测试中，签名push成功进入Jenkins队列并完成构建；同一Delivery重复投递返回原Pipeline Run，未产生重复构建。

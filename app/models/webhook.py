@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Index, String, Uuid, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -39,6 +39,11 @@ class GitHubWebhookDelivery(Base):
         Boolean,
         default=False,
         nullable=False,
+    )
+    pipeline_run_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid,
+        ForeignKey("pipeline_runs.id", ondelete="SET NULL"),
+        unique=True,
     )
     received_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

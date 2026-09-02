@@ -93,6 +93,10 @@ class PipelineRun(TimestampMixin, Base):
             "status IN ('queued', 'running', 'succeeded', 'failed', 'cancelled')",
             name="ck_pipeline_runs_status",
         ),
+        CheckConstraint(
+            "trigger_source IN ('manual', 'github')",
+            name="ck_pipeline_runs_trigger_source",
+        ),
         Index("ix_pipeline_runs_project_created", "project_id", "created_at"),
     )
 
@@ -115,6 +119,14 @@ class PipelineRun(TimestampMixin, Base):
         default="queued",
         nullable=False,
     )
+    trigger_source: Mapped[str] = mapped_column(
+        String(20),
+        default="manual",
+        server_default="manual",
+        nullable=False,
+    )
+    jenkins_queue_url: Mapped[str | None] = mapped_column(String(500))
+    trigger_error: Mapped[str | None] = mapped_column(String(500))
     image_reference: Mapped[str | None] = mapped_column(String(500))
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
