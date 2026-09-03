@@ -17,8 +17,8 @@ def reportPipelineStatus(String callbackStatus, String imageReference = "") {
       sh '''
         set -eu
         callback_url="${DEVFLOW_CALLBACK_BASE_URL%/}/api/v1/pipeline-runs/${PIPELINE_RUN_ID}/status"
-        if [ -n "${DEVFLOW_CALLBACK_IMAGE_REFERENCE}" ]; then
-          callback_payload="$(printf '{"status":"%s","image_reference":"%s"}' "${DEVFLOW_CALLBACK_STATUS}" "${DEVFLOW_CALLBACK_IMAGE_REFERENCE}")"
+        if [ -n "${DEVFLOW_CALLBACK_IMAGE_REFERENCE:-}" ]; then
+          callback_payload="$(printf '{"status":"%s","image_reference":"%s"}' "${DEVFLOW_CALLBACK_STATUS}" "${DEVFLOW_CALLBACK_IMAGE_REFERENCE:-}")"
         else
           callback_payload="$(printf '{"status":"%s"}' "${DEVFLOW_CALLBACK_STATUS}")"
         fi

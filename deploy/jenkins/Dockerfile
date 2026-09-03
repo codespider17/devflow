@@ -28,4 +28,6 @@ RUN jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
 
 COPY --chown=jenkins:jenkins init.groovy.d/ /usr/share/jenkins/ref/init.groovy.d/
 
+RUN git config --system http.version HTTP/1.1
+
 USER jenkins
