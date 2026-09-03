@@ -98,3 +98,11 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 - Pipeline Run 50819246-eb95-4929-a69f-bd9ad571985f最终进入succeeded并记录镜像hb.reg.com/devflow/devflow-api:26191776c9069972c14136f21d8806774b22100d。
 - Jenkins归档5份Trivy JSON报告；Secret、HIGH/CRITICAL误配置和CRITICAL镜像漏洞均为0，HIGH镜像漏洞继续保留报告。
 - 只读Harbor Robot成功拉取Commit镜像，Digest为sha256:c77704571969116488fd582a3c77f2e843942bd51e5273920f068a0593a8d4c5，OCI revision与Git Commit一致，运行用户为10001:10001。
+
+## 2026-09-03 M7-A1：K3s私有Harbor制品部署
+
+- 为K3s containerd配置Harbor CA和HTTPS镜像端点，未关闭TLS校验。
+- 使用独立只读Robot动态创建Kubernetes拉取Secret，真实Registry凭据不进入Git。
+- Helm Chart支持可选imagePullSecrets，并将DevFlow API发布为精确Commit镜像hb.reg.com/devflow/devflow-api:26191776c9069972c14136f21d8806774b22100d。
+- 验证Deployment、Pod镜像ID、containerd镜像、数据库连接和API健康状态。
+- 修改后的Chart重新通过Trivy Secret、IaC和CRITICAL漏洞门禁。

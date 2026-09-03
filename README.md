@@ -82,3 +82,7 @@ Jenkins运行环境固定集成Trivy 0.74.0，并通过可复用脚本对源码S
 ## Jenkins Trivy安全流水线闭环
 
 Jenkins流水线在Commit镜像构建后、Harbor推送前执行Trivy安全门禁；门禁通过才允许发布镜像，并归档源码Secret、IaC误配置、依赖漏洞和镜像漏洞JSON报告。流水线结果通过受保护Callback API回写PostgreSQL，形成Webhook触发、质量检查、制品发布与审计状态闭环。
+
+## K3s私有Harbor制品部署
+
+K3s通过独立只读Robot Account和`imagePullSecret`拉取Harbor中的精确Commit镜像，Helm Chart保持仓库、标签与拉取Secret可配置；发布过程验证Deployment Rollout、Pod镜像Digest、数据库连接及API健康状态，真实Registry凭据不进入Git仓库。

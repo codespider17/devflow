@@ -1,0 +1,8 @@
+mirrors:
+  "<HARBOR_REGISTRY>":
+    endpoint:
+      - "https://<HARBOR_REGISTRY>"
+configs:
+  "<HARBOR_REGISTRY>":
+    tls:
+      ca_file: /etc/rancher/k3s/harbor-ca.crt

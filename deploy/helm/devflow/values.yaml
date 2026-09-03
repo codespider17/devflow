@@ -4,6 +4,7 @@ api:
     repository: docker.io/library/devflow-api
     tag: "0.1.0"
     pullPolicy: IfNotPresent
+  imagePullSecrets: []
   service:
     port: 8000
   resources:
