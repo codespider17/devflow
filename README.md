@@ -78,3 +78,7 @@ DevFlow使用独立Secret Text凭据保护Jenkins回调，通过Bearer Token认�
 ## Trivy安全质量门禁
 
 Jenkins运行环境固定集成Trivy 0.74.0，并通过可复用脚本对源码Secret、Helm/Kubernetes误配置、依赖漏洞和容器镜像漏洞执行扫描。门禁阻断全部Secret发现项、HIGH/CRITICAL IaC误配置及可修复CRITICAL镜像漏洞，同时保留HIGH镜像漏洞JSON报告用于后续治理。
+
+## Jenkins Trivy安全流水线闭环
+
+Jenkins流水线在Commit镜像构建后、Harbor推送前执行Trivy安全门禁；门禁通过才允许发布镜像，并归档源码Secret、IaC误配置、依赖漏洞和镜像漏洞JSON报告。流水线结果通过受保护Callback API回写PostgreSQL，形成Webhook触发、质量检查、制品发布与审计状态闭环。

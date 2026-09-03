@@ -90,3 +90,11 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 - 建立可复用Trivy门禁脚本：阻断Secret、HIGH/CRITICAL IaC误配置和可修复CRITICAL镜像漏洞。
 - 保留源码依赖和HIGH镜像漏洞JSON报告，将已知HIGH发现项作为治理基线而非隐藏风险。
 - 在Jenkins运行环境中完成真实源码与Commit镜像门禁验证。
+
+## 2026-09-03 M6-D2：Jenkins Trivy安全流水线闭环
+
+- 使用真实签名GitHub push事件创建Pipeline Run并触发Jenkins Build 11。
+- Jenkins依次执行Commit镜像构建、Trivy安全门禁和Harbor推送，门禁先于制品发布。
+- Pipeline Run 50819246-eb95-4929-a69f-bd9ad571985f最终进入succeeded并记录镜像hb.reg.com/devflow/devflow-api:26191776c9069972c14136f21d8806774b22100d。
+- Jenkins归档5份Trivy JSON报告；Secret、HIGH/CRITICAL误配置和CRITICAL镜像漏洞均为0，HIGH镜像漏洞继续保留报告。
+- 只读Harbor Robot成功拉取Commit镜像，Digest为sha256:c77704571969116488fd582a3c77f2e843942bd51e5273920f068a0593a8d4c5，OCI revision与Git Commit一致，运行用户为10001:10001。
