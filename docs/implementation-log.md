@@ -81,3 +81,12 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 覆盖running、succeeded、failed、cancelled、重复回写、非法转换、终态保护、错误Token和未知Run等路径，状态回写专项7个测试及全量37个测试通过。
 
 真实签名push触发Jenkins构建4，Pipeline Run c8243103-7bcb-47cb-9ca7-8514db8865b9 自动记录started_at和finished_at并进入succeeded；重复Delivery未增加构建。
+
+## 2026-09-03 M6-C2：Trivy安全质量门禁
+
+- 在Jenkins镜像中固定集成Trivy 0.74.0，并在构建阶段校验官方Release归档SHA256。
+- 增加公开Helm扫描占位值，完成DevFlow Chart渲染与误配置扫描，不再跳过必填密码参数。
+- 将PostgreSQL主容器根文件系统设为只读，通过PVC和EmptyDir仅开放数据目录、运行时Socket目录与临时目录写权限，并完成真实滚动升级验证。
+- 建立可复用Trivy门禁脚本：阻断Secret、HIGH/CRITICAL IaC误配置和可修复CRITICAL镜像漏洞。
+- 保留源码依赖和HIGH镜像漏洞JSON报告，将已知HIGH发现项作为治理基线而非隐藏风险。
+- 在Jenkins运行环境中完成真实源码与Commit镜像门禁验证。

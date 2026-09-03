@@ -74,3 +74,7 @@ DevFlow已实现从GitHub Webhook到Jenkins Pipeline的事件驱动触发链路�
 DevFlow使用独立Secret Text凭据保护Jenkins回调，通过Bearer Token认证接收构建状态。Pipeline Run状态机支持运行、成功、失败和取消状态，记录开始与结束时间，拒绝非法转换并保证重复回写幂等。
 
 真实流水线验证中，GitHub push创建的Pipeline Run由Jenkins自动从`queued`更新为`running`并最终进入`succeeded`；同一Webhook Delivery重复投递不会创建第二次构建。
+
+## Trivy安全质量门禁
+
+Jenkins运行环境固定集成Trivy 0.74.0，并通过可复用脚本对源码Secret、Helm/Kubernetes误配置、依赖漏洞和容器镜像漏洞执行扫描。门禁阻断全部Secret发现项、HIGH/CRITICAL IaC误配置及可修复CRITICAL镜像漏洞，同时保留HIGH镜像漏洞JSON报告用于后续治理。

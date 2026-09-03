@@ -1,0 +1,2 @@
+secrets:
+  postgresPassword: example-only-not-a-real-secret
