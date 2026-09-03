@@ -1,4 +1,4 @@
-def reportPipelineStatus(String callbackStatus) {
+def reportPipelineStatus(String callbackStatus, String imageReference = "") {
   if (!params.PIPELINE_RUN_ID?.trim()) {
     echo "Skip DevFlow callback because PIPELINE_RUN_ID is empty"
     return
@@ -10,11 +10,18 @@ def reportPipelineStatus(String callbackStatus) {
       variable: "DEVFLOW_CALLBACK_TOKEN"
     )
   ]) {
-    withEnv(["DEVFLOW_CALLBACK_STATUS=${callbackStatus}"]) {
+    withEnv([
+      "DEVFLOW_CALLBACK_STATUS=${callbackStatus}",
+      "DEVFLOW_CALLBACK_IMAGE_REFERENCE=${imageReference}"
+    ]) {
       sh '''
         set -eu
         callback_url="${DEVFLOW_CALLBACK_BASE_URL%/}/api/v1/pipeline-runs/${PIPELINE_RUN_ID}/status"
-        callback_payload="$(printf '{"status":"%s"}' "${DEVFLOW_CALLBACK_STATUS}")"
+        if [ -n "${DEVFLOW_CALLBACK_IMAGE_REFERENCE}" ]; then
+          callback_payload="$(printf '{"status":"%s","image_reference":"%s"}' "${DEVFLOW_CALLBACK_STATUS}" "${DEVFLOW_CALLBACK_IMAGE_REFERENCE}")"
+        else
+          callback_payload="$(printf '{"status":"%s"}' "${DEVFLOW_CALLBACK_STATUS}")"
+        fi
         curl \
           --fail \
           --silent \
@@ -39,7 +46,7 @@ pipeline {
   options {
     disableConcurrentBuilds()
     timestamps()
-    timeout(time: 20, unit: "MINUTES")
+    timeout(time: 30, unit: "MINUTES")
     skipDefaultCheckout(true)
   }
 
@@ -52,7 +59,22 @@ pipeline {
     stage("Checkout") {
       steps {
         checkout scm
-        sh "git rev-parse HEAD"
+        script {
+          env.DEVFLOW_ACTUAL_COMMIT = sh(
+            returnStdout: true,
+            script: "git rev-parse HEAD"
+          ).trim()
+          env.DEVFLOW_IMAGE_REFERENCE = "${env.DEVFLOW_HARBOR_REGISTRY}/${env.DEVFLOW_HARBOR_PROJECT}/devflow-api:${env.DEVFLOW_ACTUAL_COMMIT}"
+        }
+        sh '''
+          set -eu
+          if [ -n "${GIT_COMMIT_SHA}" ] && [ "${GIT_COMMIT_SHA}" != "${DEVFLOW_ACTUAL_COMMIT}" ]; then
+            echo "Requested commit does not match checked out commit"
+            exit 1
+          fi
+          printf 'DEVFLOW_ACTUAL_COMMIT=%s\n' "${DEVFLOW_ACTUAL_COMMIT}"
+          printf 'DEVFLOW_IMAGE_REFERENCE=%s\n' "${DEVFLOW_IMAGE_REFERENCE}"
+        '''
       }
     }
 
@@ -64,10 +86,42 @@ pipeline {
       }
     }
 
-    stage("Runtime Check") {
+    stage("Build Image") {
       steps {
-        sh "docker version"
-        sh "docker buildx version"
+        sh '''
+          set -eu
+          docker build \
+            --pull=false \
+            --label "org.opencontainers.image.revision=${DEVFLOW_ACTUAL_COMMIT}" \
+            --tag "${DEVFLOW_IMAGE_REFERENCE}" \
+            .
+          test "$(docker image inspect "${DEVFLOW_IMAGE_REFERENCE}" --format '{{.Config.User}}')" = '10001:10001'
+        '''
+      }
+    }
+
+    stage("Push Image") {
+      steps {
+        withCredentials([
+          usernamePassword(
+            credentialsId: "devflow-harbor-push",
+            usernameVariable: "DEVFLOW_HARBOR_USERNAME",
+            passwordVariable: "DEVFLOW_HARBOR_PASSWORD"
+          )
+        ]) {
+          sh '''
+            set -eu
+            temporary_docker_config="$(mktemp -d)"
+            export DOCKER_CONFIG="${temporary_docker_config}"
+            trap 'rm -rf "${temporary_docker_config}"' EXIT
+            printf '%s' "${DEVFLOW_HARBOR_PASSWORD}" |
+              docker login "${DEVFLOW_HARBOR_REGISTRY}" \
+                --username "${DEVFLOW_HARBOR_USERNAME}" \
+                --password-stdin
+            docker push "${DEVFLOW_IMAGE_REFERENCE}"
+            docker logout "${DEVFLOW_HARBOR_REGISTRY}" > /dev/null
+          '''
+        }
       }
     }
   }
@@ -75,7 +129,7 @@ pipeline {
   post {
     success {
       script {
-        reportPipelineStatus("succeeded")
+        reportPipelineStatus("succeeded", env.DEVFLOW_IMAGE_REFERENCE ?: "")
       }
     }
     failure {
