@@ -100,6 +100,19 @@ pipeline {
       }
     }
 
+    stage("Trivy Security Gate") {
+      steps {
+        sh '''
+          set -eu
+          rm -rf -- reports/trivy
+          ci/scripts/trivy-gate.sh \
+            . \
+            "${DEVFLOW_IMAGE_REFERENCE}" \
+            reports/trivy
+        '''
+      }
+    }
+
     stage("Push Image") {
       steps {
         withCredentials([
@@ -143,6 +156,11 @@ pipeline {
       }
     }
     always {
+      archiveArtifacts(
+        artifacts: "reports/trivy/*.json",
+        allowEmptyArchive: true,
+        fingerprint: true
+      )
       echo "DevFlow pipeline finished"
     }
   }
