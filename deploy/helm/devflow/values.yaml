@@ -7,6 +7,11 @@ api:
   imagePullSecrets: []
   service:
     port: 8000
+  metrics:
+    serviceMonitor:
+      enabled: true
+      interval: 15s
+      scrapeTimeout: 10s
   resources:
     requests:
       cpu: 100m

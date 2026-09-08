@@ -1,0 +1,21 @@
+{{- if .Values.api.metrics.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: devflow-api
+  labels:
+    app.kubernetes.io/name: devflow-api
+    app.kubernetes.io/part-of: devflow
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: devflow-api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: {{ .Values.api.metrics.serviceMonitor.interval }}
+      scrapeTimeout: {{ .Values.api.metrics.serviceMonitor.scrapeTimeout }}
+{{- end }}

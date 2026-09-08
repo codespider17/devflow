@@ -11,6 +11,7 @@ from app.api.deployments import router as deployments_router
 from app.api.pipeline_callbacks import router as pipeline_callbacks_router
 from app.api.webhooks import router as webhooks_router
 from app.database import get_db
+from app.metrics import observe_http_request, render_metrics
 
 
 class StatusResponse(BaseModel):
@@ -30,6 +31,7 @@ app = FastAPI(
     description="Cloud-native delivery and engineering efficiency platform",
     version="0.1.0",
 )
+app.middleware("http")(observe_http_request)
 
 app.include_router(core_router)
 app.include_router(deployments_router)
@@ -66,3 +68,8 @@ def service_info() -> ServiceInfo:
         version=app.version,
         environment="development",
     )
+
+
+@app.get("/metrics", include_in_schema=False)
+def metrics(db: DatabaseSession):
+    return render_metrics(db)
