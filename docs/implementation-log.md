@@ -173,3 +173,9 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 - 使用Prometheus真实采集的Jenkins与DevFlow指标创建8面板Dashboard。
 - Dashboard UID为devflow-platform-overview，通过Grafana Sidecar从ConfigMap自动加载。
 - Grafana API验证Dashboard存在且面板数为8。
+
+## 2026-09-08 M8-C：项目自动终验
+
+- 自动复核真实成功发布与失败回滚的数据库状态和完整审计链。
+- 验证Kubernetes、Helm、Harbor、Jenkins、Trivy、Prometheus与Grafana运行证据。
+- 全量代码、测试、迁移和敏感信息边界检查通过，并生成公开终验报告。

@@ -118,3 +118,7 @@ DevFlow提供独立Bearer Token保护的发布执行状态回写接口，约束a
 ### Grafana统一可观测面板
 
 - Grafana通过ConfigMap自动加载`DevFlow Platform Overview`面板，统一展示Jenkins可用性、执行器、队列、构建结果以及DevFlow流水线、发布和Webhook指标。
+
+## 项目终验
+
+- 端到端成功发布、受控失败回滚、审计链和可观测性终验证据见`docs/final-validation.md`。
