@@ -90,3 +90,7 @@ K3s通过独立只读Robot Account和`imagePullSecret`拉取Harbor中的精确Co
 ## 发布审批与审计数据模型
 
 DevFlow使用PostgreSQL记录发布请求、目标环境、精确镜像、审批决定及结构化审计事件；数据库外键、唯一约束和状态约束为后续审批API、Helm发布与自动回滚提供一致的数据基础。
+
+## 发布申请、审批与审计API
+
+DevFlow提供受独立Bearer Token保护的发布控制API，支持从成功Pipeline Run幂等创建发布申请、记录审批决定、阻止终态改判，并查询发布详情和结构化审计事件。控制面此阶段只记录审批状态，不直接执行集群变更。
