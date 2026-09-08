@@ -110,3 +110,7 @@ DevFlow提供独立Bearer Token保护的发布执行状态回写接口，约束a
 ## 自动回滚真实实验
 
 项目通过不存在的Harbor Commit镜像执行受控失败发布：Jenkins构建按预期失败，Helm自动恢复上一精确镜像，Kubernetes工作负载重新达到Ready，Deployment最终记录为rolled_back，并保留requested、approved、deploying、failed、rolled_back完整审计链。
+
+## Prometheus与Grafana基础监控
+
+项目使用kube-prometheus-stack部署Prometheus、Grafana、Alertmanager、kube-state-metrics和Node Exporter，为Kubernetes资源、DevFlow业务指标及交付效能度量提供统一采集与展示基础。Grafana通过http://<DEVFLOW_HOST>:30300访问，真实管理员凭据仅保存在运行环境中。

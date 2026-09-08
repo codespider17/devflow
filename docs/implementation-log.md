@@ -153,3 +153,10 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 - Helm从Revision 11推进至13并恢复deployed状态。
 - Kubernetes实际镜像恢复为hb.reg.com/devflow/devflow-api:febef9db53c69c75e5ed620981a8dad594428942，Pod重新达到Ready。
 - 审计链完整记录requested、approved、deploying、failed和rolled_back。
+
+## 2026-09-08 M8-A1：Prometheus与Grafana基础监控栈
+
+- 使用kube-prometheus-stack Chart 90.0.0部署核心监控组件。
+- Prometheus保留3天数据，Prometheus、Grafana和Alertmanager均使用持久化卷。
+- Grafana管理员凭据使用独立Kubernetes Secret保存，公开仓库不包含真实密码。
+- 实际验收时Prometheus健康目标数量为13，Grafana数据库状态为ok。

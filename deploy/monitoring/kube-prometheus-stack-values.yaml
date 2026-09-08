@@ -1,0 +1,65 @@
+grafana:
+  admin:
+    existingSecret: devflow-grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
+  service:
+    type: NodePort
+    nodePort: 30300
+  persistence:
+    enabled: true
+    storageClassName: local-path
+    accessModes: [ReadWriteOnce]
+    size: 2Gi
+  resources:
+    requests: {cpu: 100m, memory: 192Mi}
+    limits: {cpu: 500m, memory: 512Mi}
+prometheus:
+  prometheusSpec:
+    retention: 3d
+    retentionSize: 4GB
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    resources:
+      requests: {cpu: 250m, memory: 512Mi}
+      limits: {cpu: "1", memory: 1536Mi}
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests: {storage: 6Gi}
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests: {cpu: 50m, memory: 128Mi}
+      limits: {cpu: 300m, memory: 256Mi}
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests: {storage: 1Gi}
+prometheusOperator:
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: 500m, memory: 384Mi}
+kube-state-metrics:
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {cpu: 200m, memory: 192Mi}
+prometheus-node-exporter:
+  resources:
+    requests: {cpu: 30m, memory: 32Mi}
+    limits: {cpu: 150m, memory: 128Mi}
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
