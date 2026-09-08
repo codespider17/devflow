@@ -22,10 +22,6 @@ def reportDeploymentStatus(String callbackStatus, String reason = "") {
 pipeline {
   agent any
 
-  environment {
-    DEVFLOW_DEPLOYMENT_STARTED = "false"
-  }
-
   options {
     disableConcurrentBuilds()
     timestamps()
@@ -68,7 +64,6 @@ pipeline {
       steps {
         script {
           reportDeploymentStatus("deploying")
-          env.DEVFLOW_DEPLOYMENT_STARTED = "true"
         }
       }
     }
@@ -105,19 +100,15 @@ pipeline {
     }
     failure {
       script {
-        if (env.DEVFLOW_DEPLOYMENT_STARTED == "true") {
-          reportDeploymentStatus("failed", "jenkins helm deployment failed")
-          if (params.PREVIOUS_IMAGE_REFERENCE?.trim()) {
-            sh '''
-              set -eu
-              kubectl -n "${DEPLOYMENT_NAMESPACE}" rollout status deployment/devflow-api --timeout=180s
-              deployed_image="$(kubectl -n "${DEPLOYMENT_NAMESPACE}" get deployment devflow-api -o jsonpath='{.spec.template.spec.containers[0].image}')"
-              test "${deployed_image}" = "${PREVIOUS_IMAGE_REFERENCE}"
-            '''
-            reportDeploymentStatus("rolled_back", "automatic helm rollback verified")
-          }
-        } else {
-          echo "Deployment failed before deployment execution started"
+        reportDeploymentStatus("failed", "jenkins helm deployment failed")
+        if (params.PREVIOUS_IMAGE_REFERENCE?.trim()) {
+          sh '''
+            set -eu
+            kubectl -n "${DEPLOYMENT_NAMESPACE}" rollout status deployment/devflow-api --timeout=180s
+            deployed_image="$(kubectl -n "${DEPLOYMENT_NAMESPACE}" get deployment devflow-api -o jsonpath='{.spec.template.spec.containers[0].image}')"
+            test "${deployed_image}" = "${PREVIOUS_IMAGE_REFERENCE}"
+          '''
+          reportDeploymentStatus("rolled_back", "automatic helm rollback verified")
         }
       }
     }
