@@ -1,0 +1,108 @@
+def reportDeploymentStatus(String callbackStatus, String reason = "") {
+  withCredentials([
+    string(
+      credentialsId: "devflow-deployment-callback-token",
+      variable: "DEVFLOW_DEPLOYMENT_CALLBACK_TOKEN"
+    )
+  ]) {
+    withEnv([
+      "DEVFLOW_DEPLOYMENT_STATUS=${callbackStatus}",
+      "DEVFLOW_DEPLOYMENT_REASON=${reason}"
+    ]) {
+      sh '''
+        set -eu
+        callback_url="${DEVFLOW_CALLBACK_BASE_URL%/}/api/v1/deployments/${DEPLOYMENT_ID}/status"
+        if [ -n "${DEVFLOW_DEPLOYMENT_REASON}" ]; then callback_payload="$(printf '{"status":"%s","actor":"jenkins-deployer","reason":"%s"}' "${DEVFLOW_DEPLOYMENT_STATUS}" "${DEVFLOW_DEPLOYMENT_REASON}")"; else callback_payload="$(printf '{"status":"%s","actor":"jenkins-deployer"}' "${DEVFLOW_DEPLOYMENT_STATUS}")"; fi
+        curl --fail --silent --show-error --retry 3 --retry-all-errors -X POST "${callback_url}" -H "Authorization: Bearer ${DEVFLOW_DEPLOYMENT_CALLBACK_TOKEN}" -H "Content-Type: application/json" --data "${callback_payload}" > /dev/null
+      '''
+    }
+  }
+}
+
+pipeline {
+  agent any
+
+  options {
+    disableConcurrentBuilds()
+    timestamps()
+    timeout(time: 15, unit: "MINUTES")
+    skipDefaultCheckout(true)
+  }
+
+  parameters {
+    string(name: "DEPLOYMENT_ID", defaultValue: "", description: "DevFlow Deployment UUID")
+    string(name: "IMAGE_REFERENCE", defaultValue: "", description: "Approved Harbor image")
+    string(name: "DEPLOYMENT_NAMESPACE", defaultValue: "devflow-system", description: "Kubernetes namespace")
+    string(name: "HELM_RELEASE", defaultValue: "devflow", description: "Helm release")
+  }
+
+  stages {
+    stage("Checkout") {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage("Validate Deployment") {
+      steps {
+        sh '''
+          set -eu
+          test -n "${DEPLOYMENT_ID}"
+          test -n "${IMAGE_REFERENCE}"
+          printf '%s' "${IMAGE_REFERENCE}" | grep -Eq '^hb\.reg\.com/devflow/devflow-api:[0-9a-f]{40}$'
+          test "${DEPLOYMENT_NAMESPACE}" = "devflow-system"
+          test "${HELM_RELEASE}" = "devflow"
+          kubectl get node devflow
+          helm status "${HELM_RELEASE}" -n "${DEPLOYMENT_NAMESPACE}"
+        '''
+      }
+    }
+
+    stage("Report Deploying") {
+      steps {
+        script {
+          reportDeploymentStatus("deploying")
+        }
+      }
+    }
+
+    stage("Helm Deploy") {
+      steps {
+        sh '''
+          set -eu
+          image_repository="${IMAGE_REFERENCE%:*}"
+          image_tag="${IMAGE_REFERENCE##*:}"
+          helm upgrade "${HELM_RELEASE}" deploy/helm/devflow --namespace "${DEPLOYMENT_NAMESPACE}" --reuse-values --set-string api.image.repository="${image_repository}" --set-string api.image.tag="${image_tag}" --set-string api.image.pullPolicy=Always --set-string 'api.imagePullSecrets[0].name=devflow-harbor-pull' --rollback-on-failure --wait --timeout 5m
+        '''
+      }
+    }
+
+    stage("Rollout Health") {
+      steps {
+        sh '''
+          set -eu
+          kubectl -n "${DEPLOYMENT_NAMESPACE}" rollout status deployment/devflow-api --timeout=180s
+          kubectl -n "${DEPLOYMENT_NAMESPACE}" wait --for=condition=Ready pod -l app.kubernetes.io/name=devflow-api --timeout=180s
+          deployed_image="$(kubectl -n "${DEPLOYMENT_NAMESPACE}" get deployment devflow-api -o jsonpath='{.spec.template.spec.containers[0].image}')"
+          test "${deployed_image}" = "${IMAGE_REFERENCE}"
+        '''
+      }
+    }
+  }
+
+  post {
+    success {
+      script {
+        reportDeploymentStatus("succeeded")
+      }
+    }
+    failure {
+      script {
+        reportDeploymentStatus("failed", "jenkins helm deployment failed")
+      }
+    }
+    always {
+      echo "DevFlow deployment pipeline finished"
+    }
+  }
+}

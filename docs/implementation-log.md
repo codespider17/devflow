@@ -131,3 +131,10 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 - 有效状态转换记录UTC事件时间、执行主体和脱敏原因，相同状态重复回写不重复写入审计事件。
 - 完成5项专项数据库事务测试以及全量回归，Alembic保持原有单一Head。
 - 本阶段只完成发布执行控制面，不声明Jenkins Helm发布已经接通。
+
+## 2026-09-08 M7-C2：Jenkins Helm发布执行器
+
+- 为Jenkins挂载只读K3s kubeconfig、kubectl和Helm。
+- 创建独立Deployment Callback Credential和devflow-deployment流水线。
+- 流水线包含参数校验、状态回写、Helm发布、Rollout与Pod健康检查。
+- 本阶段仅完成执行器配置和访问验收，真实发布留待M7-C3。

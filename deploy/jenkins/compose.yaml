@@ -17,6 +17,7 @@ services:
         -Djenkins.install.runSetupWizard=true
       DEVFLOW_CALLBACK_BASE_URL: "${DEVFLOW_CALLBACK_BASE_URL:?DEVFLOW_CALLBACK_BASE_URL is required}"
       DEVFLOW_PIPELINE_CALLBACK_TOKEN: "${DEVFLOW_PIPELINE_CALLBACK_TOKEN:?DEVFLOW_PIPELINE_CALLBACK_TOKEN is required}"
+      DEVFLOW_DEPLOYMENT_CALLBACK_TOKEN: "${DEVFLOW_DEPLOYMENT_CALLBACK_TOKEN:?DEVFLOW_DEPLOYMENT_CALLBACK_TOKEN is required}"
       DEVFLOW_HARBOR_REGISTRY: "${DEVFLOW_HARBOR_REGISTRY:?DEVFLOW_HARBOR_REGISTRY is required}"
       DEVFLOW_HARBOR_PROJECT: "${DEVFLOW_HARBOR_PROJECT:?DEVFLOW_HARBOR_PROJECT is required}"
       DEVFLOW_HARBOR_PUSH_USERNAME: "${DEVFLOW_HARBOR_PUSH_USERNAME:?DEVFLOW_HARBOR_PUSH_USERNAME is required}"
@@ -26,6 +27,10 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/local/bin/kubectl:/usr/local/bin/kubectl:ro
+      - ./runtime/helm:/usr/local/bin/helm:ro
+      - ./runtime/kubeconfig:/var/jenkins_home/.kube/config:ro
+      - ./init.groovy.d/04-deployment-callback-credential.groovy:/var/jenkins_home/init.groovy.d/04-deployment-callback-credential.groovy:ro
       - ./init.groovy.d/02-callback-credential.groovy:/var/jenkins_home/init.groovy.d/02-callback-credential.groovy:ro
       - ./init.groovy.d/03-harbor-credential.groovy:/var/jenkins_home/init.groovy.d/03-harbor-credential.groovy:ro
     mem_limit: 3g

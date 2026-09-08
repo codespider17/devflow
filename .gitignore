@@ -16,3 +16,4 @@ dist/
 *.egg-info/
 
 reports/trivy/
+deploy/jenkins/runtime/
