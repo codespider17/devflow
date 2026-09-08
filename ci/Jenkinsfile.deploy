@@ -12,7 +12,7 @@ def reportDeploymentStatus(String callbackStatus, String reason = "") {
       sh '''
         set -eu
         callback_url="${DEVFLOW_CALLBACK_BASE_URL%/}/api/v1/deployments/${DEPLOYMENT_ID}/status"
-        if [ -n "${DEVFLOW_DEPLOYMENT_REASON}" ]; then callback_payload="$(printf '{"status":"%s","actor":"jenkins-deployer","reason":"%s"}' "${DEVFLOW_DEPLOYMENT_STATUS}" "${DEVFLOW_DEPLOYMENT_REASON}")"; else callback_payload="$(printf '{"status":"%s","actor":"jenkins-deployer"}' "${DEVFLOW_DEPLOYMENT_STATUS}")"; fi
+        if [ -n "${DEVFLOW_DEPLOYMENT_REASON:-}" ]; then callback_payload="$(printf '{"status":"%s","actor":"jenkins-deployer","reason":"%s"}' "${DEVFLOW_DEPLOYMENT_STATUS}" "${DEVFLOW_DEPLOYMENT_REASON}")"; else callback_payload="$(printf '{"status":"%s","actor":"jenkins-deployer"}' "${DEVFLOW_DEPLOYMENT_STATUS}")"; fi
         curl --fail --silent --show-error --retry 3 --retry-all-errors -X POST "${callback_url}" -H "Authorization: Bearer ${DEVFLOW_DEPLOYMENT_CALLBACK_TOKEN}" -H "Content-Type: application/json" --data "${callback_payload}" > /dev/null
       '''
     }
