@@ -49,7 +49,7 @@ pipeline {
           set -eu
           test -n "${DEPLOYMENT_ID}"
           test -n "${IMAGE_REFERENCE}"
-          printf '%s' "${IMAGE_REFERENCE}" | grep -Eq '^hb\.reg\.com/devflow/devflow-api:[0-9a-f]{40}$'
+          printf "%s" "${IMAGE_REFERENCE}" | grep -Eq "^hb\\.reg\\.com/devflow/devflow-api:[0-9a-f]{40}$"
           test "${DEPLOYMENT_NAMESPACE}" = "devflow-system"
           test "${HELM_RELEASE}" = "devflow"
           kubectl get node devflow
