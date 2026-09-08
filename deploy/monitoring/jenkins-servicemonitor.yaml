@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: devflow-jenkins
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: devflow-jenkins
+    app.kubernetes.io/part-of: devflow
+spec:
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: devflow-jenkins
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: devflow-jenkins
+subsets:
+  - addresses:
+      - ip: 192.168.87.71
+    ports:
+      - name: http
+        protocol: TCP
+        port: 8080
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: devflow-jenkins
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: devflow-jenkins
+    app.kubernetes.io/part-of: devflow
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: devflow-jenkins
+  namespaceSelector:
+    matchNames:
+      - monitoring
+  endpoints:
+    - port: http
+      path: /prometheus/
+      interval: 15s
+      scrapeTimeout: 10s
+      basicAuth:
+        username:
+          name: devflow-jenkins-metrics-auth
+          key: username
+        password:
+          name: devflow-jenkins-metrics-auth
+          key: password
