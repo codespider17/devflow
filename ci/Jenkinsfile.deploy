@@ -22,6 +22,10 @@ def reportDeploymentStatus(String callbackStatus, String reason = "") {
 pipeline {
   agent any
 
+  environment {
+    DEVFLOW_DEPLOYMENT_STARTED = "false"
+  }
+
   options {
     disableConcurrentBuilds()
     timestamps()
@@ -32,6 +36,7 @@ pipeline {
   parameters {
     string(name: "DEPLOYMENT_ID", defaultValue: "", description: "DevFlow Deployment UUID")
     string(name: "IMAGE_REFERENCE", defaultValue: "", description: "Approved Harbor image")
+    string(name: "PREVIOUS_IMAGE_REFERENCE", defaultValue: "", description: "Rollback Harbor image")
     string(name: "DEPLOYMENT_NAMESPACE", defaultValue: "devflow-system", description: "Kubernetes namespace")
     string(name: "HELM_RELEASE", defaultValue: "devflow", description: "Helm release")
   }
@@ -50,6 +55,7 @@ pipeline {
           test -n "${DEPLOYMENT_ID}"
           test -n "${IMAGE_REFERENCE}"
           printf "%s" "${IMAGE_REFERENCE}" | grep -Eq "^hb\\.reg\\.com/devflow/devflow-api:[0-9a-f]{40}$"
+          if [ -n "${PREVIOUS_IMAGE_REFERENCE}" ]; then printf "%s" "${PREVIOUS_IMAGE_REFERENCE}" | grep -Eq "^hb\\.reg\\.com/devflow/devflow-api:[0-9a-f]{40}$"; fi
           test "${DEPLOYMENT_NAMESPACE}" = "devflow-system"
           test "${HELM_RELEASE}" = "devflow"
           kubectl get node devflow
@@ -62,6 +68,7 @@ pipeline {
       steps {
         script {
           reportDeploymentStatus("deploying")
+          env.DEVFLOW_DEPLOYMENT_STARTED = "true"
         }
       }
     }
@@ -98,7 +105,20 @@ pipeline {
     }
     failure {
       script {
-        reportDeploymentStatus("failed", "jenkins helm deployment failed")
+        if (env.DEVFLOW_DEPLOYMENT_STARTED == "true") {
+          reportDeploymentStatus("failed", "jenkins helm deployment failed")
+          if (params.PREVIOUS_IMAGE_REFERENCE?.trim()) {
+            sh '''
+              set -eu
+              kubectl -n "${DEPLOYMENT_NAMESPACE}" rollout status deployment/devflow-api --timeout=180s
+              deployed_image="$(kubectl -n "${DEPLOYMENT_NAMESPACE}" get deployment devflow-api -o jsonpath='{.spec.template.spec.containers[0].image}')"
+              test "${deployed_image}" = "${PREVIOUS_IMAGE_REFERENCE}"
+            '''
+            reportDeploymentStatus("rolled_back", "automatic helm rollback verified")
+          }
+        } else {
+          echo "Deployment failed before deployment execution started"
+        }
       }
     }
     always {

@@ -13,6 +13,7 @@ from app.services.deployment_approval import (
 ALLOWED_DEPLOYMENT_TRANSITIONS = {
     "approved": {"deploying"},
     "deploying": {"succeeded", "failed"},
+    "failed": {"rolled_back"},
 }
 
 
@@ -39,7 +40,7 @@ def update_deployment_status(
     deployment.status = payload.status
     if payload.status == "deploying":
         deployment.deployed_at = now
-    if payload.status in {"succeeded", "failed"}:
+    if payload.status in {"succeeded", "failed", "rolled_back"}:
         deployment.finished_at = now
 
     details: dict[str, str] = {"status": payload.status}

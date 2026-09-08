@@ -227,3 +227,53 @@ def test_unknown_deployment_returns_not_found(
         "deploying",
     )
     assert response.status_code == 404
+
+
+def test_failed_deployment_can_reach_rolled_back_with_audit(
+    status_client: TestClient,
+    status_session: Session,
+) -> None:
+    deployment_id = create_approved_deployment(status_client, status_session)
+    assert write_status(status_client, deployment_id, "deploying").status_code == 200
+    assert (
+        write_status(
+            status_client,
+            deployment_id,
+            "failed",
+            reason="rollout health check failed",
+        ).status_code
+        == 200
+    )
+
+    rolled_back = write_status(
+        status_client,
+        deployment_id,
+        "rolled_back",
+        reason="automatic helm rollback verified",
+    )
+    assert rolled_back.status_code == 200
+    assert rolled_back.json()["status"] == "rolled_back"
+    assert rolled_back.json()["finished_at"] is not None
+
+    audit_response = status_client.get(
+        f"/api/v1/deployments/{deployment_id}/audit-events",
+        headers=token_headers("devflow_approval_api_token"),
+    )
+    assert audit_response.status_code == 200
+    assert [event["event_type"] for event in audit_response.json()] == [
+        "deployment.requested",
+        "deployment.approved",
+        "deployment.deploying",
+        "deployment.failed",
+        "deployment.rolled_back",
+    ]
+
+
+def test_rolled_back_requires_failed_state(
+    status_client: TestClient,
+    status_session: Session,
+) -> None:
+    deployment_id = create_approved_deployment(status_client, status_session)
+    assert write_status(status_client, deployment_id, "deploying").status_code == 200
+    response = write_status(status_client, deployment_id, "rolled_back")
+    assert response.status_code == 409

@@ -102,3 +102,7 @@ DevFlow提供独立Bearer Token保护的发布执行状态回写接口，约束a
 ## Jenkins Helm发布执行器
 
 项目提供独立Jenkins发布任务，使用只读K3s kubeconfig执行Helm升级、Deployment Rollout和Pod健康检查，并通过独立Callback Credential回写发布状态。当前步骤完成执行环境与任务配置，真实审批发布结果将在下一阶段验证。
+
+## 自动回滚状态链
+
+发布执行器支持记录deploying、failed和rolled_back状态；Helm升级失败并恢复上一精确镜像后，通过受保护Callback API写入结构化回滚审计事件。真实故障发布与恢复结果将在M7-D2验证。

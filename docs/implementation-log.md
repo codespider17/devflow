@@ -138,3 +138,10 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 - 创建独立Deployment Callback Credential和devflow-deployment流水线。
 - 流水线包含参数校验、状态回写、Helm发布、Rollout与Pod健康检查。
 - 本阶段仅完成执行器配置和访问验收，真实发布留待M7-C3。
+
+## 2026-09-08 M7-D1：自动回滚状态链
+
+- Deployment状态机增加failed到rolled_back转换，并记录deployment.rolled_back审计事件。
+- Jenkins发布流水线增加上一精确镜像参数、部署执行边界和Helm失败后的回滚镜像校验。
+- 新增失败到回滚及非法直接回滚的数据库API集成测试。
+- 本阶段完成代码和测试，真实故障发布实验留待M7-D2。
