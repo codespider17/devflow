@@ -6,6 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.core import router as core_router
+from app.api.deployment_callbacks import router as deployment_callbacks_router
 from app.api.deployments import router as deployments_router
 from app.api.pipeline_callbacks import router as pipeline_callbacks_router
 from app.api.webhooks import router as webhooks_router
@@ -32,6 +33,7 @@ app = FastAPI(
 
 app.include_router(core_router)
 app.include_router(deployments_router)
+app.include_router(deployment_callbacks_router)
 app.include_router(webhooks_router)
 app.include_router(pipeline_callbacks_router)
 

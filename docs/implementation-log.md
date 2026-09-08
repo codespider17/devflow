@@ -122,3 +122,12 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 - 审批支持approved和rejected终态，相同决定重复提交保持幂等，终态不能改判。
 - 发布申请与审批操作写入结构化审计事件，并提供详情与审计查询接口。
 - 真实审批Token仅保存在本机忽略文件，公开仓库只保存占位符。
+
+## 2026-09-08 M7-C1：发布执行状态回写与审计API
+
+- 新增独立Deployment Callback Token，和审批、Pipeline回写凭据相互隔离。
+- 新增受Bearer Token保护的Deployment状态回写接口。
+- 建立approved到deploying再到succeeded或failed的状态机，非法跳转和终态改写返回冲突。
+- 有效状态转换记录UTC事件时间、执行主体和脱敏原因，相同状态重复回写不重复写入审计事件。
+- 完成5项专项数据库事务测试以及全量回归，Alembic保持原有单一Head。
+- 本阶段只完成发布执行控制面，不声明Jenkins Helm发布已经接通。

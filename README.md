@@ -94,3 +94,7 @@ DevFlow使用PostgreSQL记录发布请求、目标环境、精确镜像、审批
 ## 发布申请、审批与审计API
 
 DevFlow提供受独立Bearer Token保护的发布控制API，支持从成功Pipeline Run幂等创建发布申请、记录审批决定、阻止终态改判，并查询发布详情和结构化审计事件。控制面此阶段只记录审批状态，不直接执行集群变更。
+
+## 发布执行状态与审计
+
+DevFlow提供独立Bearer Token保护的发布执行状态回写接口，约束approved到deploying再到succeeded或failed的状态转换；每次有效转换记录操作者、时间和脱敏原因，重复回写保持幂等，为Jenkins执行Helm发布和健康检查提供可审计的控制面基础。
