@@ -86,3 +86,7 @@ Jenkins流水线在Commit镜像构建后、Harbor推送前执行Trivy安全门�
 ## K3s私有Harbor制品部署
 
 K3s通过独立只读Robot Account和`imagePullSecret`拉取Harbor中的精确Commit镜像，Helm Chart保持仓库、标签与拉取Secret可配置；发布过程验证Deployment Rollout、Pod镜像Digest、数据库连接及API健康状态，真实Registry凭据不进入Git仓库。
+
+## 发布审批与审计数据模型
+
+DevFlow使用PostgreSQL记录发布请求、目标环境、精确镜像、审批决定及结构化审计事件；数据库外键、唯一约束和状态约束为后续审批API、Helm发布与自动回滚提供一致的数据基础。

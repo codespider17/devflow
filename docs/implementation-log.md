@@ -106,3 +106,11 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 - Helm Chart支持可选imagePullSecrets，并将DevFlow API发布为精确Commit镜像hb.reg.com/devflow/devflow-api:26191776c9069972c14136f21d8806774b22100d。
 - 验证Deployment、Pod镜像ID、containerd镜像、数据库连接和API健康状态。
 - 修改后的Chart重新通过Trivy Secret、IaC和CRITICAL漏洞门禁。
+
+## 2026-09-08 M7-B1：发布审批与审计数据模型
+
+- 新增deployments、approvals和audit_events三张PostgreSQL表。
+- 使用Pipeline Run与Environment外键关联发布记录，并限制一个Pipeline Run只创建一条发布记录。
+- 使用数据库Check Constraint约束发布状态和审批决定。
+- 审计事件使用JSONB保存非敏感结构化上下文，并按时间和发布记录建立索引。
+- 通过事务集成测试验证发布申请、审批变化和审计事件关联，测试数据执行后回滚。
