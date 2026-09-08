@@ -160,3 +160,10 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 - Prometheus保留3天数据，Prometheus、Grafana和Alertmanager均使用持久化卷。
 - Grafana管理员凭据使用独立Kubernetes Secret保存，公开仓库不包含真实密码。
 - 实际验收时Prometheus健康目标数量为13，Grafana数据库状态为ok。
+
+## 2026-09-08 M8-A2B：DevFlow业务指标真实采集
+
+- Jenkins Build 15完成指标版本构建、Trivy门禁和Harbor推送。
+- Jenkins Release Build 7完成审批后Helm发布，Deployment状态为succeeded。
+- ServiceMonitor devflow-api已创建，Prometheus目标状态为up。
+- Prometheus实际返回5组devflow_pipeline_run_records时序。
