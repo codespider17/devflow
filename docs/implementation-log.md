@@ -145,3 +145,11 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 - Jenkins发布流水线增加上一精确镜像参数、部署执行边界和Helm失败后的回滚镜像校验。
 - 新增失败到回滚及非法直接回滚的数据库API集成测试。
 - 本阶段完成代码和测试，真实故障发布实验留待M7-D2。
+
+## 2026-09-08 M7-D2：真实失败发布与自动回滚实验
+
+- 使用不存在的Commit镜像hb.reg.com/devflow/devflow-api:944eac903a03b433611ca712b5300ed3591e82b1执行受控失败发布。
+- Jenkins Build 5按预期为FAILURE，Deployment最终为rolled_back。
+- Helm从Revision 11推进至13并恢复deployed状态。
+- Kubernetes实际镜像恢复为hb.reg.com/devflow/devflow-api:febef9db53c69c75e5ed620981a8dad594428942，Pod重新达到Ready。
+- 审计链完整记录requested、approved、deploying、failed和rolled_back。

@@ -106,3 +106,7 @@ DevFlow提供独立Bearer Token保护的发布执行状态回写接口，约束a
 ## 自动回滚状态链
 
 发布执行器支持记录deploying、failed和rolled_back状态；Helm升级失败并恢复上一精确镜像后，通过受保护Callback API写入结构化回滚审计事件。真实故障发布与恢复结果将在M7-D2验证。
+
+## 自动回滚真实实验
+
+项目通过不存在的Harbor Commit镜像执行受控失败发布：Jenkins构建按预期失败，Helm自动恢复上一精确镜像，Kubernetes工作负载重新达到Ready，Deployment最终记录为rolled_back，并保留requested、approved、deploying、failed、rolled_back完整审计链。
