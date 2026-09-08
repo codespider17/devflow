@@ -167,3 +167,9 @@ Jenkins客户端专项测试4个，全量测试21个；Ruff、pip check和Alembi
 - Jenkins Release Build 7完成审批后Helm发布，Deployment状态为succeeded。
 - ServiceMonitor devflow-api已创建，Prometheus目标状态为up。
 - Prometheus实际返回5组devflow_pipeline_run_records时序。
+
+### 2026-09-08 M8-B2 Grafana统一面板
+
+- 使用Prometheus真实采集的Jenkins与DevFlow指标创建8面板Dashboard。
+- Dashboard UID为devflow-platform-overview，通过Grafana Sidecar从ConfigMap自动加载。
+- Grafana API验证Dashboard存在且面板数为8。

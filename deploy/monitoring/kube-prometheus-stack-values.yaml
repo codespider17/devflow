@@ -1,4 +1,8 @@
 grafana:
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: ALL
   admin:
     existingSecret: devflow-grafana-admin
     userKey: admin-user

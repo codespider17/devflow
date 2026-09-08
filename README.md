@@ -114,3 +114,7 @@ DevFlow提供独立Bearer Token保护的发布执行状态回写接口，约束a
 ## Prometheus与Grafana基础监控
 
 项目使用kube-prometheus-stack部署Prometheus、Grafana、Alertmanager、kube-state-metrics和Node Exporter，为Kubernetes资源、DevFlow业务指标及交付效能度量提供统一采集与展示基础。Grafana通过http://<DEVFLOW_HOST>:30300访问，真实管理员凭据仅保存在运行环境中。
+
+### Grafana统一可观测面板
+
+- Grafana通过ConfigMap自动加载`DevFlow Platform Overview`面板，统一展示Jenkins可用性、执行器、队列、构建结果以及DevFlow流水线、发布和Webhook指标。
