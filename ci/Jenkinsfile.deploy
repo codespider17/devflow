@@ -74,7 +74,7 @@ pipeline {
           set -eu
           image_repository="${IMAGE_REFERENCE%:*}"
           image_tag="${IMAGE_REFERENCE##*:}"
-          helm upgrade "${HELM_RELEASE}" deploy/helm/devflow --namespace "${DEPLOYMENT_NAMESPACE}" --reuse-values --set-string api.image.repository="${image_repository}" --set-string api.image.tag="${image_tag}" --set-string api.image.pullPolicy=Always --set-string 'api.imagePullSecrets[0].name=devflow-harbor-pull' --rollback-on-failure --wait --timeout 5m
+          helm upgrade "${HELM_RELEASE}" deploy/helm/devflow --namespace "${DEPLOYMENT_NAMESPACE}" --reset-then-reuse-values --set-string api.image.repository="${image_repository}" --set-string api.image.tag="${image_tag}" --set-string api.image.pullPolicy=Always --set-string 'api.imagePullSecrets[0].name=devflow-harbor-pull' --rollback-on-failure --wait --timeout 5m
         '''
       }
     }
